@@ -66,7 +66,7 @@ node('docker && android-build') {
             sh '''#!/bin/bash
               export CCACHE_DIR=$PWD/ccache
               prebuilts/misc/linux-x86/ccache/ccache -M 0 -F 0
-              rm -f *.gz
+              rm -rf rockdev/
             '''
         }
 
@@ -77,13 +77,54 @@ node('docker && android-build') {
           'ANDROID_JACK_VM_ARGS=-Xmx3g -Dfile.encoding=UTF-8 -XX:+TieredCompilation',
           'ANDROID_NO_TEST_CHECK=true'
         ]) {
-          stage 'Build'
+          stage 'Regular'
           sh '''#!/bin/bash
             export CCACHE_DIR=$PWD/ccache
             export HOME=$WORKSPACE
             export USER=jenkins
 
-            ./build.sh
+            device/rockchip/common/build_base.sh \
+              -a arm64 \
+              -l rk3328-userdebug \
+              -u rk3328_box_defconfig \
+              -k rockchip_smp_nougat_defconfig \
+              -d rk3328-evb \
+              -j 12
+          '''
+
+          stage 'TV'
+          sh '''#!/bin/bash
+            export CCACHE_DIR=$PWD/ccache
+            export HOME=$WORKSPACE
+            export USER=jenkins
+
+            device/rockchip/common/build_base.sh \
+              -a arm64 \
+              -l rk3328_box-userdebug \
+              -u rk3328_box_defconfig \
+              -k rockchip_smp_nougat_defconfig \
+              -d rk3328-evb \
+              -j 12
+          '''
+
+          stage 'Package'
+          sh '''#!/bin/bash
+            export HOME=$WORKSPACE
+            export USER=jenkins
+
+            cd rockdev/
+
+            for variant in Image-*; do
+              local name="${JOB_NAME}-v${VERSION}-r${BUILD_NUMBER}"
+              mv "$variant" "$name"
+
+              mkdir -p "$name-update"
+              mv "$name/update.img" "$name-update/"
+              zip -r "$name.zip" "$name/" &
+              zip -r "$name-update.zip" "$name-update/" &
+            done
+
+            wait
           '''
         }
 
@@ -130,12 +171,14 @@ node('docker && android-build') {
                 --name "manifest.xml" \
                 --file "manifest.xml"
 
-            for file in rockdev/Image-rk3328_box/*; do
+            for file in rockdev/*.zip; do
               github-release upload \
                   --tag "${VERSION}" \
                   --name "$(basename "$file")" \
-                  --file "$file"
+                  --file "$file" &
             done
+
+            wait
 
             if [[ "$PRERELEASE" == "true" ]]; then
               github-release edit \
