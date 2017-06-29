@@ -117,7 +117,7 @@ node('docker && android-build') {
             cd rockdev/
 
             for variant in Image-*; do
-              name="${JOB_NAME}-v${VERSION}-r${BUILD_NUMBER}"
+              name="${JOB_NAME}-${variant/Image-/}-v${VERSION}-r${BUILD_NUMBER}"
               mv "$variant" "$name"
 
               mkdir -p "${name}-update"
