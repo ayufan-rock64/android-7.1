@@ -89,7 +89,7 @@ node('docker && android-build') {
               -u rk3328_box_defconfig \
               -k rockchip_smp_nougat_defconfig \
               -d rk3328-evb \
-              -j 12
+              -j $(($(nproc)+1))
           '''
 
           stage 'TV'
@@ -104,7 +104,7 @@ node('docker && android-build') {
               -u rk3328_box_defconfig \
               -k rockchip_smp_nougat_defconfig \
               -d rk3328-evb \
-              -j 12
+              -j $(($(nproc)+1))
           '''
 
           stage 'Package'
@@ -112,16 +112,18 @@ node('docker && android-build') {
             export HOME=$WORKSPACE
             export USER=jenkins
 
+            set -xe
+
             cd rockdev/
 
             for variant in Image-*; do
-              local name="${JOB_NAME}-v${VERSION}-r${BUILD_NUMBER}"
+              name="${JOB_NAME}-v${VERSION}-r${BUILD_NUMBER}"
               mv "$variant" "$name"
 
-              mkdir -p "$name-update"
-              mv "$name/update.img" "$name-update/"
-              zip -r "$name.zip" "$name/" &
-              zip -r "$name-update.zip" "$name-update/" &
+              mkdir -p "${name}-update"
+              mv "${name}/update.img" "${name}-update/"
+              zip -r "${name}.zip" "$name/" &
+              zip -r "${name}-update.zip" "${name}-update/" &
             done
 
             wait
