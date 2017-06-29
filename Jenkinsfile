@@ -74,7 +74,7 @@ node('docker && android-build') {
           "VERSION=$VERSION",
           'TARGET=tulip_chiphd-userdebug',
           'USE_CCACHE=true',
-          'ANDROID_JACK_VM_ARGS=-Xmx3g -Dfile.encoding=UTF-8 -XX:+TieredCompilation',
+          'ANDROID_JACK_VM_ARGS=-Xmx6g -Dfile.encoding=UTF-8 -XX:+TieredCompilation',
           'ANDROID_NO_TEST_CHECK=true'
         ]) {
           stage 'Regular'
