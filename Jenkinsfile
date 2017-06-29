@@ -28,7 +28,7 @@ node('docker && android-build') {
         export HOME=$WORKSPACE
         export USER=jenkins
 
-        repo init -u https://github.com/rock64-android/manifests --depth=1 -m rock64_nougat.xml
+        repo init -u https://github.com/rock64-android/manifests --depth=1 -b default -m rock64_nougat.xml
 
         repo sync -j 20 -c --force-sync
         '''
