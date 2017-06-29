@@ -67,6 +67,8 @@ node('docker && android-build') {
               export CCACHE_DIR=$PWD/ccache
               prebuilts/misc/linux-x86/ccache/ccache -M 0 -F 0
               rm -rf rockdev/
+              git -C kernel clean -fdx
+              git -C u-boot clean -fdx
             '''
         }
 
