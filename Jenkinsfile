@@ -35,6 +35,29 @@ node('docker && android-build') {
 
         withEnv([
           "VERSION=$VERSION",
+          "CHANGES=$CHANGES",
+          "PRERELEASE=$PRERELEASE",
+          "GITHUB_USER=$GITHUB_USER",
+          "GITHUB_REPO=$GITHUB_REPO"
+        ]) {
+          stage 'Test'
+          sh '''#!/bin/bash
+            # use -ve, otherwise we could leak GITHUB_TOKEN...
+            set -ve
+            shopt -s nullglob
+
+            export HOME=$WORKSPACE
+            export USER=jenkins
+
+            if curl -s --fail "https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO/contents/versions/$VERSION/CHANGES.md"; then
+              echo "Version already exist."
+              exit 1
+            fi
+          '''
+        }
+
+        withEnv([
+          "VERSION=$VERSION",
           'TARGET=tulip_chiphd-userdebug',
           'USE_CCACHE=true',
           'CCACHE_DIR=/var/lib/ccache',
@@ -45,33 +68,6 @@ node('docker && android-build') {
               prebuilts/misc/linux-x86/ccache/ccache -M 0 -F 0
               rm -f *.gz
             '''
-        }
-
-        withEnv([
-          "VERSION=$VERSION",
-          "CHANGES=$CHANGES",
-          "GITHUB_USER=$GITHUB_USER",
-          "GITHUB_REPO=$GITHUB_REPO"
-        ]) {
-          stage 'Freeze'
-          sh '''#!/bin/bash
-            # use -ve, otherwise we could leak GITHUB_TOKEN...
-            set -ve
-            shopt -s nullglob
-
-            export HOME=$WORKSPACE
-            export USER=jenkins
-
-            repo manifest -r -o manifest.xml
-
-            echo "{\\"message\\":\\"Add $VERSION changes\\", \\"committer\\":{\\"name\\":\\"Jenkins\\",\\"email\\":\\"jenkins@ayufan.eu\\"},\\"content\\":\\"$(echo "$CHANGES" | base64 -w 0)\\"}" | \
-              curl --fail -X PUT -H "Authorization: token $GITHUB_TOKEN" -d @- \
-              "https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO/contents/versions/$VERSION/CHANGES.md"
-
-            echo "{\\"message\\":\\"Add $VERSION manifest\\", \\"committer\\":{\\"name\\":\\"Jenkins\\",\\"email\\":\\"jenkins@ayufan.eu\\"},\\"content\\":\\"$(base64 -w 0 manifest.xml)\\"}" | \
-              curl --fail -X PUT -H "Authorization: token $GITHUB_TOKEN" -d @- \
-              "https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO/contents/versions/$VERSION/manifest.xml"
-          '''
         }
 
         withEnv([
@@ -98,6 +94,26 @@ node('docker && android-build') {
           "GITHUB_USER=$GITHUB_USER",
           "GITHUB_REPO=$GITHUB_REPO"
         ]) {
+          stage 'Freeze'
+          sh '''#!/bin/bash
+            # use -ve, otherwise we could leak GITHUB_TOKEN...
+            set -ve
+            shopt -s nullglob
+
+            export HOME=$WORKSPACE
+            export USER=jenkins
+
+            repo manifest -r -o manifest.xml
+
+            echo "{\\"message\\":\\"Add $VERSION changes\\", \\"committer\\":{\\"name\\":\\"Jenkins\\",\\"email\\":\\"jenkins@ayufan.eu\\"},\\"content\\":\\"$(echo "$CHANGES" | base64 -w 0)\\"}" | \
+              curl --fail -X PUT -H "Authorization: token $GITHUB_TOKEN" -d @- \
+              "https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO/contents/versions/$VERSION/CHANGES.md"
+
+            echo "{\\"message\\":\\"Add $VERSION manifest\\", \\"committer\\":{\\"name\\":\\"Jenkins\\",\\"email\\":\\"jenkins@ayufan.eu\\"},\\"content\\":\\"$(base64 -w 0 manifest.xml)\\"}" | \
+              curl --fail -X PUT -H "Authorization: token $GITHUB_TOKEN" -d @- \
+              "https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO/contents/versions/$VERSION/manifest.xml"
+          '''
+
           stage 'Release'
           sh '''#!/bin/bash
             set -xe
