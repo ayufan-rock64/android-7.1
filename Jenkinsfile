@@ -88,7 +88,7 @@ node('docker && android-build') {
               -l rk3328-userdebug \
               -u rk3328_box_defconfig \
               -k rockchip_smp_nougat_defconfig \
-              -d rk3328-evb \
+              -d rk3328-box-plus \
               -j $(($(nproc)+1))
           '''
 
@@ -103,7 +103,7 @@ node('docker && android-build') {
               -l rk3328_box-userdebug \
               -u rk3328_box_defconfig \
               -k rockchip_smp_nougat_defconfig \
-              -d rk3328-evb \
+              -d rk3328-box-plus \
               -j $(($(nproc)+1))
           '''
 
