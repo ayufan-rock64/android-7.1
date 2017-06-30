@@ -39,7 +39,6 @@ node('docker && android-build') {
         withEnv([
           "VERSION=$VERSION",
           "CHANGES=$CHANGES",
-          "PRERELEASE=$PRERELEASE",
           "GITHUB_USER=$GITHUB_USER",
           "GITHUB_REPO=$GITHUB_REPO"
         ]) {
