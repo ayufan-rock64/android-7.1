@@ -62,7 +62,6 @@ node('docker && android-build') {
 
         withEnv([
           "VERSION=$VERSION",
-          'TARGET=tulip_chiphd-userdebug',
           'USE_CCACHE=true',
           'CCACHE_DIR=/var/lib/ccache',
         ]) {
@@ -78,7 +77,6 @@ node('docker && android-build') {
 
         withEnv([
           "VERSION=$VERSION",
-          'TARGET=tulip_chiphd-userdebug',
           'USE_CCACHE=true',
           'ANDROID_JACK_VM_ARGS=-Xmx6g -Dfile.encoding=UTF-8 -XX:+TieredCompilation',
           'ANDROID_NO_TEST_CHECK=true'
@@ -92,7 +90,7 @@ node('docker && android-build') {
 
               device/rockchip/common/build_base.sh \
                 -a arm64 \
-                -l rock64-regular-userdebug \
+                -l rock64_regular-userdebug \
                 -u rk3328_box_defconfig \
                 -k rockchip_smp_nougat_defconfig \
                 -d rk3328-rock64 \
@@ -111,7 +109,7 @@ node('docker && android-build') {
 
               device/rockchip/common/build_base.sh \
                 -a arm64 \
-                -l rock64-atv-userdebug \
+                -l rock64_atv-userdebug \
                 -u rk3328_box_defconfig \
                 -k rockchip_smp_nougat_defconfig \
                 -d rk3328-rock64 \
