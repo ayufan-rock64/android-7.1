@@ -137,7 +137,7 @@ node('docker && android-build') {
               cp "../vendor/ayufan/rockchip/idbloader.img" "${name}/"
               zip -r "${name}.zip" "$name/" &
               zip -r "${name}-update.zip" "${name}-update/" &
-              vendor/ayufan/rockchip/rkimage "$name/" "$name-raw.img" &
+              ../vendor/ayufan/rockchip/rkimage "$name/" "$name-raw.img" &
             done
 
             wait
