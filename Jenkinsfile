@@ -136,6 +136,7 @@ node('docker && android-build') {
               mv "${name}/update.img" "${name}-update/"
               zip -r "${name}.zip" "$name/" &
               zip -r "${name}-update.zip" "${name}-update/" &
+              vendor/ayufan/rockchip/rkimage "$name/" "$name-raw.img" &
             done
 
             wait
@@ -186,7 +187,7 @@ node('docker && android-build') {
                   --name "manifest.xml" \
                   --file "manifest.xml"
 
-              for file in rockdev/*.zip; do
+              for file in rockdev/*.zip rockdev/*.gz; do
                 github-release upload \
                     --tag "${VERSION}" \
                     --name "$(basename "$file")" \
