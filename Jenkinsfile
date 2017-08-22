@@ -134,6 +134,7 @@ node('docker && android-build') {
 
               mkdir -p "${name}-update"
               mv "${name}/update.img" "${name}-update/"
+              cp "../vendor/ayufan/rockchip/idbloader.img" "${name}/"
               zip -r "${name}.zip" "$name/" &
               zip -r "${name}-update.zip" "${name}-update/" &
               vendor/ayufan/rockchip/rkimage "$name/" "$name-raw.img" &
