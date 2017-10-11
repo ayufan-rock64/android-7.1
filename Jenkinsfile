@@ -90,7 +90,7 @@ node('docker && android-build') {
 
               device/rockchip/common/build_base.sh \
                 -a arm64 \
-                -l rock64_regular-userdebug \
+                -l rock64_regular-eng \
                 -u rk3328_box_defconfig \
                 -k rockchip_smp_nougat_defconfig \
                 -d rk3328-rock64 \
