@@ -81,7 +81,7 @@ node('docker && android-build') {
           'ANDROID_JACK_VM_ARGS=-Xmx6g -Dfile.encoding=UTF-8 -XX:+TieredCompilation',
           'ANDROID_NO_TEST_CHECK=true'
         ]) {
-          stage 'Regular'
+          stage 'Regular Rock64'
           if (params.BUILD_DESKTOP) {
             sh '''#!/bin/bash
               export CCACHE_DIR=$PWD/ccache
@@ -100,7 +100,7 @@ node('docker && android-build') {
             echo 'Desktop version disabled.'
           }
 
-          stage 'TV'
+          stage 'TV Rock64'
           if (params.BUILD_TV) {
             sh '''#!/bin/bash
               export CCACHE_DIR=$PWD/ccache
@@ -113,6 +113,25 @@ node('docker && android-build') {
                 -u rk3328_box_defconfig \
                 -k rockchip_smp_nougat_defconfig \
                 -d rk3328-rock64 \
+                -j $(($(nproc)+1))
+            '''
+          } else {
+            echo 'TV version disabled.'
+          }
+
+          stage 'TV Rockbox'
+          if (params.BUILD_TV) {
+            sh '''#!/bin/bash
+              export CCACHE_DIR=$PWD/ccache
+              export HOME=$WORKSPACE
+              export USER=jenkins
+
+              device/rockchip/common/build_base.sh \
+                -a arm64 \
+                -l rockbox_atv-userdebug \
+                -u rk3328_box_defconfig \
+                -k rockchip_smp_nougat_defconfig \
+                -d rk3328-rockbox \
                 -j $(($(nproc)+1))
             '''
           } else {
